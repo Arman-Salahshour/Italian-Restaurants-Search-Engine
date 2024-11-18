@@ -74,3 +74,24 @@ def create_inverted_indexer(vocab_df, restaurants_df):
 
 
 
+def conjuctive_search(query, vocab_df, vocab_documents_dict, restaurants_df):
+    # Clean and tokenize the query string
+    tokens = clean_text(query, tokenized=True)
+    
+    # Get the document indices for the first token
+    term_id = vocab_df[vocab_df.token == tokens[0]].index[0]
+    common_rests = set(vocab_documents_dict[term_id])
+    
+    # Perform an intersection of document indices for all subsequent tokens
+    for token in tokens[1:]:
+        term_id = vocab_df[vocab_df.token == token].index[0]
+        common_rests = common_rests & set(vocab_documents_dict[term_id])
+    
+    # Convert the result to a list of common restaurant indices
+    common_rests = list(common_rests)
+    
+    # Retrieve and return details of the matching restaurants
+    return restaurants_df.iloc[common_rests][['restaurantName', 'address', 'description', 'website']]
+
+
+
