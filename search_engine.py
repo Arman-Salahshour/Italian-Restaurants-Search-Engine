@@ -36,4 +36,23 @@ def clean_text(text, stop_words=stop_words, stemmer=stemmer, tokenized=False):
         cleaned_text = " ".join(stemmed_tokens)
         return cleaned_text
     
- 
+    
+def create_vocab_indexer(df, column):
+    # Initialize an empty set to store unique tokens
+    vocab = set()
+    
+    # Convert the specified column of the DataFrame to a NumPy array
+    corpus = df[column].to_numpy()
+    
+    # Tokenize each text in the corpus and update the vocabulary set
+    for text in corpus:
+        tokens = word_tokenize(text)
+        vocab.update(tokens)
+    
+    # Convert the vocabulary set into a DataFrame with a 'token' column
+    vocab_df = pd.DataFrame(vocab, columns=['token'])  
+    
+    # Return the DataFrame containing unique tokens
+    return vocab_df
+
+
