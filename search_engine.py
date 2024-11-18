@@ -56,3 +56,21 @@ def create_vocab_indexer(df, column):
     return vocab_df
 
 
+
+def create_inverted_indexer(vocab_df, restaurants_df):
+    # Initialize an empty dictionary to store the inverted index
+    vocab_documents_dict = dict()
+    
+    # Iterate over each token in the vocabulary DataFrame
+    for i, vocab in tqdm(enumerate(vocab_df.to_numpy())):
+        # Find indices of rows in the DataFrame where the token appears in the 'cleaned_description' column
+        indices = list(restaurants_df[restaurants_df['cleaned_description'].str.contains(vocab[0])].index)
+        
+        # Map the token's index in the vocabulary to the list of document indices
+        vocab_documents_dict[i] = indices
+    
+    # Return the inverted index dictionary
+    return vocab_documents_dict
+
+
+
