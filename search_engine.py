@@ -149,4 +149,34 @@ def cosine_similarity(vector, matrix):
 
 
 
+def rank_search_engine(query, vocab_df, vocab_documents_with_tfidf, restaurants_df, k=5):
+    # Step 1: Process the query
+    tokens = clean_text(query, tokenized=True)
+    vectorized_query = np.zeros(len(vocab_df))
+    vocab_dict = {vocab: idx for idx, vocab in enumerate(vocab_df.to_numpy().flatten())}
+    
+    for token in tokens:
+        if token in vocab_dict:
+            vectorized_query[vocab_dict[token]] = 1
+    
+    vectorized_query = vectorized_query.reshape(1, -1)
+    
+    # Step 2: Construct document vectors
+    restaurants_dict = {restaurant: np.zeros(len(vocab_df)) for restaurant in restaurants_df.index}
+    for vocab_id, rest_tfidf in vocab_documents_with_tfidf.items():
+        for restaurant, tfidf_score in rest_tfidf:
+            restaurants_dict[restaurant][vocab_id] = tfidf_score
+    
+    restaurant_ids = list(restaurants_dict.keys())
+    tfidf_matrix = np.array([restaurants_dict[id] for id in restaurant_ids])
+    
+    # Step 3: Compute cosine similarity and rank results
+    similarity_scores = cosine_similarity(vectorized_query, tfidf_matrix).flatten()
+    top_k_restaurants = np.argsort(similarity_scores)[::-1][:k]
+    
+    # Step 4: Return results
+    selected_rests = restaurants_df.iloc[top_k_restaurants]
+    selected_rests['Similarity Score'] = np.sort(similarity_scores)[::-1][:k]
+    return selected_rests
+
 
