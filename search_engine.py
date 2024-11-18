@@ -95,3 +95,40 @@ def conjuctive_search(query, vocab_df, vocab_documents_dict, restaurants_df):
 
 
 
+def create_inverted_indexer_with_tfidf(vocab_df, restaurants_df):
+    vocab_documents_dict = dict()
+    
+    for i, row in tqdm(vocab_df.iterrows(), total=len(vocab_df)):
+        vocab = row[0] 
+        tfidf_scores = []
+        
+        # Find documents containing the current vocab term
+        doc_indices = restaurants_df[
+            restaurants_df['cleaned_description'].str.contains(fr'\b{vocab}\b', regex=True)
+        ].index
+        
+        for index in doc_indices:
+            # Get the document description
+            description = restaurants_df.loc[index, 'cleaned_description']
+            doc_tokens = description.split(' ')
+            
+            # Calculate term frequency (TF)
+            matching_tokens = [token for token in doc_tokens if token == vocab]
+            tf = len(matching_tokens) / len(doc_tokens)
+            
+            # Calculate inverse document frequency (IDF)
+            if len(doc_indices) > 0:
+                idf = np.log(len(restaurants_df) / len(doc_indices))
+            else:
+                idf = 0
+            
+            # Append the TF-IDF score
+            tfidf_scores.append(tf * idf if tf > 0 else 0)
+        
+        # Store results for this term
+        vocab_documents_dict[i] = list(zip(doc_indices, tfidf_scores))
+    
+    return vocab_documents_dict
+
+
+
