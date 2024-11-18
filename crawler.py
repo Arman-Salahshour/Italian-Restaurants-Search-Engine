@@ -48,3 +48,57 @@ def download_restaurants_pages(restaurants_list):
                 _file.write(response.text)
 
 
+
+def extract_title(soup):
+    # Extract the restaurant's title from the parsed HTML content.
+    titles = soup.select('.data-sheet__title')
+    return titles[0].text.strip() if titles else None
+
+def extract_address(info):
+    # Extract and structure the address, city, postal code, and country from the provided information block.
+    address = info[0].text.strip().split(',')
+    return {
+        'address': address[0].strip(),
+        'city': address[1].strip(),
+        'postalCode': address[2].strip(),
+        'country': address[3].strip()
+    }
+
+def extract_details(info):
+    # Extract the price range and cuisine type from the provided information block.
+    detail = info[1].text.strip().split('·')
+    return {
+        'priceRange': detail[0].strip(),
+        'cuisineType': detail[1].strip()
+    }
+
+def extract_description(soup):
+    # Extract the restaurant's description from the parsed HTML content.
+    description = soup.select('.data-sheet__description')[0]
+    return description.text.strip() if description else None
+
+def extract_facilities(soup):
+    # Extract a list of facilities/services available at the restaurant.
+    facilities = soup.find(class_='restaurant-details__services').find_all('li')
+    return [fac.text.strip() for fac in facilities]
+
+def extract_cards(soup):
+    # Extract and format accepted credit card names from the provided HTML content.
+    try:
+        cards = soup.find(class_='list--card').find_all('img')
+        return [card.get('data-src').split('/')[-1].split('-')[0].capitalize() for card in cards]
+    except:
+        return None
+
+def extract_phone_number(soup):
+    # Extract the restaurant's phone number from the parsed HTML content.
+    information = soup.select('.collapse__block-item')
+    return information[0].find('span').text.strip() if information else None
+
+def extract_website(soup):
+    # Extract the restaurant's website URL if available.
+    links = soup.select('.link.js-dtm-link')
+    for link in links:
+        if link.get('data-event') == 'CTA_website' and 'www' in link.get('href'):
+            return link.get('href').strip()
+    return None
