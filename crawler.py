@@ -130,3 +130,16 @@ def process_restaurant_file(file_path, rest_attr_dict):
     rest_attr_dict['phoneNumber'].append(extract_phone_number(soup))
     rest_attr_dict['website'].append(extract_website(soup))
 
+def process_pages(pages, pages_base_dir):
+    # Iterate through pages, processing each restaurant's HTML file to build a dictionary of attributes.
+    rest_attr_dict = defaultdict(list)
+    
+    for page in tqdm(pages):
+        page_path = os.path.join(pages_base_dir, page)
+        restaurants = os.listdir(page_path)
+        
+        for restaurant in restaurants:
+            file_path = os.path.join(page_path, restaurant)
+            process_restaurant_file(file_path, rest_attr_dict)
+
+    return rest_attr_dict
