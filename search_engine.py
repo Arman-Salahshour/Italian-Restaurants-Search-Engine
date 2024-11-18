@@ -132,3 +132,21 @@ def create_inverted_indexer_with_tfidf(vocab_df, restaurants_df):
 
 
 
+def cosine_similarity(vector, matrix):
+    # Compute the L2 norm (magnitude) of the input vector
+    vector_norm = np.linalg.norm(vector, axis=1, keepdims=True)
+    
+    # Compute the L2 norm (magnitude) of the matrix rows
+    matrix_norm = np.linalg.norm(matrix, axis=1, keepdims=True)
+    
+    # Calculate the dot product between the vector and the matrix rows
+    dot_product = vector @ matrix.T
+    
+    # Compute cosine similarity by normalizing the dot product with magnitudes
+    similarity = dot_product / (vector_norm * matrix_norm.T)
+    
+    return similarity  # Return the cosine similarity scores
+
+
+
+
