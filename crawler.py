@@ -102,3 +102,31 @@ def extract_website(soup):
         if link.get('data-event') == 'CTA_website' and 'www' in link.get('href'):
             return link.get('href').strip()
     return None
+
+def process_restaurant_file(file_path, rest_attr_dict):
+    # Process a single restaurant's HTML file to extract attributes and append them to the attributes dictionary.
+    with open(file_path, "r", encoding="utf-8") as _file:
+        html = _file.read()
+        
+    soup = BeautifulSoup(html, "html.parser")
+    
+    rest_attr_dict['restaurantName'].append(extract_title(soup))
+    
+    info = soup.select('.data-sheet__detail-info')[0].find_all(class_='data-sheet__block--text')
+    address_info = extract_address(info)
+    rest_attr_dict['address'].append(address_info['address'])
+    rest_attr_dict['city'].append(address_info['city'])
+    rest_attr_dict['postalCode'].append(address_info['postalCode'])
+    rest_attr_dict['country'].append(address_info['country'])
+    
+    detail_info = extract_details(info)
+    rest_attr_dict['priceRange'].append(detail_info['priceRange'])
+    rest_attr_dict['cuisineType'].append(detail_info['cuisineType'])
+    
+    rest_attr_dict['description'].append(extract_description(soup))
+    rest_attr_dict['facilitiesServices'].append(extract_facilities(soup))
+    
+    rest_attr_dict['creditCards'].append(extract_cards(soup))
+    rest_attr_dict['phoneNumber'].append(extract_phone_number(soup))
+    rest_attr_dict['website'].append(extract_website(soup))
+
