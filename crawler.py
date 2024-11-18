@@ -28,3 +28,23 @@ def get_restaurants_links(number_of_pages=100):
 
     return restaurants_list 
 
+
+"""
+download_restaurants_pages Downloads the HTML content of restaurant pages from their URLs and saves them to local directories.
+"""
+def download_restaurants_pages(restaurants_list):
+    for rest in tqdm(restaurants_list): 
+        page, url = rest.split('>')  # Separate the page number and URL
+        path = os.path.join(pages_base_dir, page)  # Create a directory path for the page
+
+        if not os.path.exists(path):  # If the directory doesn't exist, create it
+            os.mkdir(path)
+
+        name = url.split('/')[-1] + '.html'  # Use the last part of the URL as the file name
+        response = requests.get(url)  # Fetch the HTML content of the URL
+
+        if response.status_code == 200:  # If the request is successful
+            with open(os.path.join(path, name), 'w') as _file:  # Save the content as an HTML file
+                _file.write(response.text)
+
+
